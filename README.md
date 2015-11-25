@@ -42,4 +42,5 @@ Activate database-stored sessions
     Enable the setting Use database for session information
 	
 What new in 1.1
+
 	Administrator can configure whether teacher and administrator roles are affected by the plugin.
