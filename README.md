@@ -40,3 +40,6 @@ Activate database-stored sessions
 
     On the Administration Block, click on Site administration » Server » Session Handling
     Enable the setting Use database for session information
+	
+What new in 1.1
+	Administrator can configure whether teacher and administrator roles are affected by the plugin.
