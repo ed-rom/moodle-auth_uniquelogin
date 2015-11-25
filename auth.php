@@ -52,7 +52,7 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
             $this->sessionstable = 'sessions';
         }
     }
-
+    
     /**
      * Return true if Moodle version is 1.9.x.
      *
@@ -71,6 +71,16 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
     protected function uniquelogin_is_version_2_x_x() {
         global $CFG;
         return substr($CFG->release,0,2)=='2.';
+    }
+	
+	/**
+     * Return true if Moodle version is > 2.6.x.
+     *
+     * @return bool True if Moodle version is 2.6.x.
+     */
+    protected function uniquelogin_is_big_version_2_6_x() {
+        global $CFG;
+        return substr($CFG->release,2,1)>=6;
     }
 	
     /**
@@ -93,9 +103,11 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
      * @return bool Always returns true.
      */
     public function user_authenticated_hook(&$user, $username, $password) {
-        $this->uniquelogin_logout_user($user->id);
+        $this->uniquelogin_logout_user($user->id,$user);
         return true;
     }
+    
+    
 
     /**
      * Searches for user sessions in database, identifies the ones that belong to user
@@ -104,7 +116,8 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
      * @param $userid
      * @return bool Always returns true.
      */
-    protected function uniquelogin_logout_user($userid) {
+    protected function uniquelogin_logout_user($userid,$user) {
+    	global $USER,$SESSION;
         if ($this->uniquelogin_is_version_1_9_x()) {
             $sessionsindatabase = get_recordset('sessions2');
             $sessions = array();
@@ -115,19 +128,52 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
             if (!array_key_exists($userid, $sessions) || is_null($sessions[$userid])) {
                 return true;
             }
+            
+            //Não deixa o utilizar logado se já tiver uma sessão ativa (Pedido AV para cliente em particular)
+            //print_error('auth_uniquelogerror','auth_uniquelogin');
+            
             foreach ($sessions[$userid] as $sessionKey) {
                 $this->uniquelogin_end_dbsession_by_sesskey($sessionKey);
             }
         } else if($this->uniquelogin_is_version_2_x_x()){
-			global $DB;
+			global $DB,$CFG;
+			
+			//If setting apply admin is ative
+			if(isset($CFG->auth_uniquelogin_aplly_to_admin) && $CFG->auth_uniquelogin_aplly_to_admin==0){
+				if (has_capability('moodle/site:config',context_system::instance(),$user) ) {
+					return true;
+				}	
+			}
+			
+			//If setting apply to teacher
+       		if(isset($CFG->auth_uniquelogin_aplly_to_teacher) &&  $CFG->auth_uniquelogin_aplly_to_teacher==0){
+       			$select = "(roleid = '2' OR roleid = '3' OR roleid = '4' ) AND userid='".$userid."'  ";
+				$aTeacher = $DB->get_records_select('role_assignments',$select);
+				if (!empty($aTeacher) && count($aTeacher)>0) {
+					return true;
+				}	
+			}
+			
 			$sessionsindatabase = $DB->get_recordset($this->sessionstable);
             $sessions = array();
 			foreach ($sessionsindatabase as $row) {
 				$sessions[$row->userid][] = $row->sid;
 			}
+			
+			
             if (!array_key_exists($userid, $sessions) || is_null($sessions[$userid])) {
                 return true;
             }
+            
+			/*if($this->uniquelogin_is_big_version_2_6_x()){
+			   //Não deixa o utilizar logado se já tiver uma sessão ativa (Pedido AV para cliente em particular)
+			   $SESSION->loginerrormsg = get_string('auth_uniquelogerror','auth_uniquelogin');
+			   redirect(get_login_url());
+		   }else{
+				 //redirect();
+				  print_error('auth_uniquelogerror','auth_uniquelogin');
+		   }*/
+            
             foreach ($sessions[$userid] as $sessionKey) {
                 $this->uniquelogin_end_dbsession_by_sesskey($sessionKey);
             }
@@ -153,6 +199,8 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
 		}
         
     }
+    
+	public function has_config() {return true;}
 
 }
 
