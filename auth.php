@@ -164,7 +164,7 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
 				}	
 			}
 			
-			$sessionsindatabase = $DB->get_recordset($this->sessionstable);
+			$sessionsindatabase = $DB->get_recordset($this->sessionstable,array('userid'=>$userid));
             $sessions = array();
 			foreach ($sessionsindatabase as $row) {
 				$sessions[$row->userid][] = $row->sid;
