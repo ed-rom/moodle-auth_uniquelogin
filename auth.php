@@ -30,7 +30,7 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
     /**
      * Constructor.
      */
-    public function auth_plugin_uniquelogin() {
+    public function __construct() {
         $this->authtype = 'uniquelogin';
         $this->config = get_config('auth/uniquelogin');
         if (empty($this->config->extencoding)) {
@@ -183,6 +183,11 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
 				 //redirect();
 				  print_error('auth_uniquelogerror','auth_uniquelogin');
 		   }*/
+		   
+		   //Is a force password
+			if(isset($_POST['newpassword1']) && $_POST['newpassword1']!=''){
+				return true;
+			}
             
             foreach ($sessions[$userid] as $sessionKey) {
                 $this->uniquelogin_end_dbsession_by_sesskey($sessionKey);
