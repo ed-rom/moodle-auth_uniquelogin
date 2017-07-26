@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @author Emanuel Delgado
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
@@ -15,7 +14,7 @@
  */
 
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
+    die('Direct access to this script is forbidden.');
 }
 
 require_once($CFG->libdir.'/authlib.php');
@@ -30,7 +29,7 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
     /**
      * Constructor.
      */
-    public function __construct() {
+    public function auth_plugin_uniquelogin() {
         $this->authtype = 'uniquelogin';
         $this->config = get_config('auth/uniquelogin');
         if (empty($this->config->extencoding)) {
@@ -45,14 +44,14 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
      * @return bool Setup sucess
      */
     protected function init() {
-    	// Set sessions table according to Moodle version.
+        //Set sessions table according to Moodle version.
         if ($this->uniquelogin_is_version_1_9_x()) {
             $this->sessionstable = 'sessions2';
         } else {
             $this->sessionstable = 'sessions';
         }
     }
-    
+
     /**
      * Return true if Moodle version is 1.9.x.
      *
@@ -60,29 +59,29 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
      */
     protected function uniquelogin_is_version_1_9_x() {
         global $CFG;
-        return substr($CFG->release,0,3)=='1.9';
+        return substr($CFG->release,0,3) == '1.9';
     }
-	
-	/**
+
+    /**
      * Return true if Moodle version is 2.x.x.
      *
      * @return bool True if Moodle version is 2.x.x.
      */
     protected function uniquelogin_is_version_2_x_x() {
         global $CFG;
-        return substr($CFG->release,0,2)=='2.';
+        return substr($CFG->release,0,2) == '2.';
     }
 	
-	/**
-     * Return true if Moodle version is 3.x.x.
-     *
-     * @return bool True if Moodle version is 3.x.x.
-     */
+    /**
+    * Return true if Moodle version is 3.x.x.
+    *
+    * @return bool True if Moodle version is 3.x.x.
+    */
     protected function uniquelogin_is_version_3_x_x() {
         global $CFG;
-        return substr($CFG->release,0,2)=='3.';
+        return substr($CFG->release,0,2) == '3.';
     }
-	
+
 	/**
      * Return true if Moodle version is > 2.6.x.
      *
@@ -90,9 +89,9 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
      */
     protected function uniquelogin_is_big_version_2_6_x() {
         global $CFG;
-        return substr($CFG->release,2,1)>=6;
+        return substr($CFG->release,2,1) >= 6;
     }
-	
+
     /**
      * Returns true if the username and password work and false if they are
      * wrong or don't exist.
@@ -104,7 +103,7 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
      */
     public function user_login($username, $password) {
         global $CFG;
-        return false; // This plugin never authenticates successfully an user, it always defer to other auth plugin
+        return false; //This plugin never authenticates successfully an user, it always defer to other auth plugin
     }
 
     /**
@@ -116,8 +115,6 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
         $this->uniquelogin_logout_user($user->id,$user);
         return true;
     }
-    
-    
 
     /**
      * Searches for user sessions in database, identifies the ones that belong to user
@@ -138,9 +135,6 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
             if (!array_key_exists($userid, $sessions) || is_null($sessions[$userid])) {
                 return true;
             }
-            
-            //Não deixa o utilizar logado se já tiver uma sessão ativa (Pedido AV para cliente em particular)
-            //print_error('auth_uniquelogerror','auth_uniquelogin');
             
             foreach ($sessions[$userid] as $sessionKey) {
                 $this->uniquelogin_end_dbsession_by_sesskey($sessionKey);
@@ -175,16 +169,8 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
                 return true;
             }
             
-			/*if($this->uniquelogin_is_big_version_2_6_x()){
-			   //Não deixa o utilizar logado se já tiver uma sessão ativa (Pedido AV para cliente em particular)
-			   $SESSION->loginerrormsg = get_string('auth_uniquelogerror','auth_uniquelogin');
-			   redirect(get_login_url());
-		   }else{
-				 //redirect();
-				  print_error('auth_uniquelogerror','auth_uniquelogin');
-		   }*/
-		   
-		   //Is a force password
+			
+            //Is a force password
 			if(isset($_POST['newpassword1']) && $_POST['newpassword1']!=''){
 				return true;
 			}
@@ -218,5 +204,4 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
 	public function has_config() {return true;}
 
 }
-
 ?>
