@@ -29,7 +29,7 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
     /**
      * Constructor.
      */
-    public function auth_plugin_uniquelogin() {
+    public function __construct() {
         $this->authtype = 'uniquelogin';
         $this->config = get_config('auth/uniquelogin');
         if (empty($this->config->extencoding)) {
