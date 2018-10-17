@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016012500;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2018101700;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2010120100;        // Requires this Moodle version
 $plugin->component = 'auth_uniquelogin';         // Full name of the plugin (used for diagnostics)
 $plugin->cron = 0; //time interval (in seconds) between calls to the plugin's 'cron' function; set to 0 to disable the cron function calls.
