@@ -82,6 +82,16 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
         return substr($CFG->release,0,2) == '3.';
     }
 
+    /**
+    * Return true if Moodle version is 4.x.x.
+    *
+    * @return bool True if Moodle version is 4.x.x.
+    */
+    protected function uniquelogin_is_version_4_x_x() {
+        global $CFG;
+        return substr($CFG->release,0,2) == '4.';
+    }
+
 	/**
      * Return true if Moodle version is > 2.6.x.
      *
@@ -139,7 +149,7 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
             foreach ($sessions[$userid] as $sessionKey) {
                 $this->uniquelogin_end_dbsession_by_sesskey($sessionKey);
             }
-        } else if($this->uniquelogin_is_version_2_x_x() || $this->uniquelogin_is_version_3_x_x()){
+        } else if($this->uniquelogin_is_version_2_x_x() || $this->uniquelogin_is_version_3_x_x() || $this->uniquelogin_is_version_4_x_x()){
 			global $DB,$CFG;
 			
 			//If setting apply admin is ative
@@ -178,8 +188,13 @@ class auth_plugin_uniquelogin extends auth_plugin_base {
             foreach ($sessions[$userid] as $sessionKey) {
                 $this->uniquelogin_end_dbsession_by_sesskey($sessionKey);
             }
+            // if($this->uniquelogin_is_version_2_x_x() || $this->uniquelogin_is_version_3_x_x()){
+            // }else if($this->uniquelogin_is_version_4_x_x(){
+            //     \core\session\manager::kill_session($userid);
+            // }
+
 		}else {
-            session_kill_user($userid);
+            \core\session\manager::kill_session($userid);
         }
         return true;
     }
